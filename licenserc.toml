@@ -1,0 +1,35 @@
+additionalHeaders = ["scripts/pkl-header-style.toml"]
+
+headerPath = "scripts/license-header.txt"
+
+includes = [
+    "*.swift",
+    "*.pkl",
+    "*.h",
+    "*.cpp",
+    "*.sh",
+    "PklProject",
+]
+
+excludes = [
+    "Tests/PklSwiftTests/Fixtures",
+    "codegen/snippet-tests",
+    "doc",
+    #    "Package.swift" # TODO: Investigate how to insert after the `swift-tools-version` block.
+]
+
+[git]
+attrs = 'enable'
+ignore = 'enable'
+
+[properties]
+copyrightOwner = "Apple Inc. and the Pkl project authors"
+inceptionYear = 2024
+
+# TODO: Remove this once hawkeye supports Pkl.
+[mapping.LINE_BLOCK_STYLE]
+extensions = ["pkl"]
+filenames = ["PklProject"]
+
+[mapping.SWIFT_STYLE]
+extensions = ["swift"]

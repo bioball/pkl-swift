@@ -1,0 +1,23 @@
+[LINE_BLOCK_STYLE]
+firstLine = '//===----------------------------------------------------------------------===//'
+endLine = "//===----------------------------------------------------------------------===//\n"
+beforeEachLine = '// '
+afterEachLine = ''
+allowBlankLines = false
+multipleLines = true
+padLines = false
+firstLineDetectionPattern = '//\s?==='
+lastLineDetectionPattern = '//\s?==='
+
+
+[SWIFT_STYLE]
+firstLine = '//===----------------------------------------------------------------------===//'
+endLine = "//===----------------------------------------------------------------------===//\n"
+beforeEachLine = '// '
+afterEachLine = ''
+allowBlankLines = false
+multipleLines = true
+padLines = false
+firstLineDetectionPattern = '//\s?==='
+lastLineDetectionPattern = '//\s?==='
+skipLinePattern = '// swift-tools-version'
