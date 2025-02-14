@@ -13,5 +13,5 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 
-Created:  {{ attrs.git_file_created_year }}
-Modified: {{ attrs.git_file_modified_year }}
+attrs.git_file_created_year:  {{ attrs.git_file_created_year }}
+attrs.git_file_modified_year: {{ attrs.git_file_modified_year }}
