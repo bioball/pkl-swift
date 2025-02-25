@@ -163,7 +163,15 @@ class FixturesTest: XCTestCase {
             animalOrString2: .string("Zebra"),
             intOrFloat1: .float64(5.0),
             intOrFloat2: .float64(5.5),
-            intOrFloat3: .int(5)
+            intOrFloat3: .int(5),
+            config: [.dev : "Imaginary Service Company (ISC) configuration"]
         ))
+    }
+
+    func testEnumMapKey() async throws {
+        let b64 = "kgOBo2RldtktSW1hZ2luYXJ5IFNlcnZpY2UgQ29tcGFueSAoSVNDKSBjb25maWd1cmF0aW9u"
+        let data = Data(base64Encoded: b64)!
+        let bytes: [UInt8] = data.map { $0 }
+        try! PklDecoder.decode([UnionTypes.Environment : String].self, from: bytes)
     }
 }
