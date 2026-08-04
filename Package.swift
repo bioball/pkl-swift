@@ -1,4 +1,4 @@
-// swift-tools-version: 6.0
+// swift-tools-version: 6.1
 //===----------------------------------------------------------------------===//
 // Copyright © 2024-2026 Apple Inc. and the Pkl project authors. All rights reserved.
 //
@@ -36,6 +36,13 @@ let package = Package(
             targets: ["PklSwift"]
         ),
     ],
+    traits: [
+        .trait(
+            name: "libpkl",
+            description:
+            "Make pkl-swift call into the libpkl C library, instead of spawning a child executable"
+        ),
+    ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-system", from: "1.2.1"),
         .package(url: "https://github.com/SwiftPackageIndex/SemanticVersion", from: "0.4.0"),
@@ -47,8 +54,16 @@ let package = Package(
     targets: [
         .target(
             name: "PklSwift",
-            dependencies: ["PklMessagePack", "PklSwiftInternals", "SemanticVersion"],
-            swiftSettings: [.enableUpcomingFeature("StrictConcurrency")],
+            dependencies: [
+                "PklMessagePack",
+                "PklSwiftInternals",
+                "SemanticVersion",
+                .targetItem(name: "CLibPkl", condition: .when(traits: ["libpkl"])),
+            ],
+            swiftSettings: [
+                .enableUpcomingFeature("StrictConcurrency"),
+                .define("libpkl", .when(traits: ["libpkl"])),
+            ],
         ),
         .target(
             name: "PklSwiftInternals",
@@ -61,6 +76,7 @@ let package = Package(
             ],
             swiftSettings: [.enableUpcomingFeature("StrictConcurrency")]
         ),
+        .systemLibrary(name: "CLibPkl", pkgConfig: "libpkl"),
         .executableTarget(
             name: "test-external-reader",
             dependencies: ["PklSwift"],
@@ -97,5 +113,5 @@ let package = Package(
         ),
     ],
     swiftLanguageModes: [.v5, .v6],
-    cxxLanguageStandard: .cxx20
+    cxxLanguageStandard: .cxx20,
 )

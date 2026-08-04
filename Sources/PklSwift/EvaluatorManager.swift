@@ -110,10 +110,13 @@ public actor EvaluatorManager {
 
     var pklVersion: String?
 
-    // note; when our C bindings are released, change `init()` based on compiler flags.
     public init() {
         #if os(macOS) || os(Linux) || os(Windows)
+        #if libpkl
+        self.init(transport: NativeMessageTransport())
+        #else
         self.init(transport: ServerMessageTransport())
+        #endif
         #else
         fatalError("cannot spawn pkl cli on this platform")
         #endif
@@ -402,7 +405,7 @@ public actor EvaluatorManager {
             }
         }
         self.evaluators.removeAll()
-        self.transport.close()
+        try! self.transport.close()
     }
 
     private func doAsk(
