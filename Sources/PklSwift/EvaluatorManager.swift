@@ -26,6 +26,7 @@ let PKL_EXEC_NAME="pkl.exe"
 let ENV_SEPARATOR=":"
 let PKL_EXEC_NAME="pkl"
 #endif
+
 /// Performs `action`, returns its result and then closes the manager.
 ///
 /// - Parameter action: The action to perform
@@ -112,17 +113,19 @@ public actor EvaluatorManager {
 
     var pklVersion: String?
 
+    #if libpkl
+    public init() {
+        self.init(transport: NativeMessageTransport())
+    }
+    #else
     public init() {
         #if os(macOS) || os(Linux) || os(Windows)
-        #if libpkl
-        self.init(transport: NativeMessageTransport())
-        #else
         self.init(transport: ServerMessageTransport())
-        #endif
         #else
         fatalError("cannot spawn pkl cli on this platform")
         #endif
     }
+    #endif
 
     // Used for testing only.
     init(transport: MessageTransport) {

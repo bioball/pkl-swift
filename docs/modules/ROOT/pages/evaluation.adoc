@@ -39,16 +39,17 @@ dependencies: [
         url: "https://github.com/apple/pkl-swift",
         from: "{version}",
         traits: [
-            "libpkl",
+            "libpkl_shared", // <1>
         ]
     )
 ]
 ----
+<1> Replace with `libpkl_static` if you wish to statically link to libpkl.
 
-Additionally, you will need to have the libpkl library available on your machine.
+When linking to libpkl, you will need to have the library available on your machine.
 pkl-swift itself does not ship with libpkl bundled.
 
-For installation, consult the https://pkl-lang.org/main/current/libpkl/index.html#installation[libpkl documentation].
+For installation, consult the https://pkl-lang.org/main/current/libpkl/index.html#installation[installation] section of the libpkl documentation.
 
 If you have installed libpkl to a non-system directory, you need to set up your `PKG_CONFIG_PATH` to point to the `lib/pkgconfig` directory of where you've placed libpkl:
 

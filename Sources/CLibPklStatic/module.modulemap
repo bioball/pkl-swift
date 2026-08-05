@@ -1,4 +1,4 @@
-module CLibPkl [system] {
+module CLibPklStatic [system] {
   header "shim.h"
   link "pkl"
 

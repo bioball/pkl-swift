@@ -15,7 +15,16 @@
 //===----------------------------------------------------------------------===//
 
 #if libpkl
-import CLibPkl
+
+#if libpkl_shared && libpkl_static
+#error("'libpkl_shared' and 'libpkl_static' are mutually exclusive traits")
+#endif
+
+#if libpkl_shared
+import CLibPklShared
+#else
+import CLibPklStatic
+#endif
 import Foundation
 
 private final class ResponseContext {
