@@ -29,19 +29,6 @@ public class ExternalReaderMessageTransport: BaseMessageTransport, @unchecked Se
         self.decoder = .init(reader: self.reader)
     }
 
-    override func decodeMessage(_ messageType: MessageType) throws -> ServerMessage {
-        switch messageType {
-        case MessageType.INITIALIZE_MODULE_READER_REQUEST:
-            return try self.decoder.decode(as: InitializeModuleReaderRequest.self)
-        case MessageType.INITIALIZE_RESOURCE_READER_REQUEST:
-            return try self.decoder.decode(as: InitializeResourceReaderRequest.self)
-        case MessageType.CLOSE_EXTERNAL_PROCESS:
-            return try self.decoder.decode(as: CloseExternalProcess.self)
-        default:
-            return try super.decodeMessage(messageType)
-        }
-    }
-
     override func close() {
         self._running = false
     }

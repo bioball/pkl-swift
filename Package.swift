@@ -40,7 +40,7 @@ let package = Package(
         .trait(
             name: "libpkl",
             description:
-            "Make pkl-swift call into the libpkl C library, instead of spawning a child executable"
+            "Make pkl-swift call into the libpkl C library, instead of spawning a child executable",
         ),
     ],
     dependencies: [

@@ -29,25 +29,7 @@ public class BaseMessageTransport: MessageTransport, @unchecked Sendable {
     func send(_ message: ClientMessage) throws {
         debug("Sending message: \(message)")
 
-        let messageType = MessageType.getMessageType(message)
-        try self.encoder.encodeArrayHeader(2)
-        try self.encoder.encode(messageType)
-        try self.encoder.encode(message)
-    }
-
-    func decodeMessage(_ messageType: MessageType) throws -> ServerMessage {
-        switch messageType {
-        case MessageType.READ_MODULE_REQUEST:
-            return try self.decoder.decode(as: ReadModuleRequest.self)
-        case MessageType.READ_RESOURCE_REQUEST:
-            return try self.decoder.decode(as: ReadResourceRequest.self)
-        case MessageType.LIST_MODULES_REQUEST:
-            return try self.decoder.decode(as: ListModulesRequest.self)
-        case MessageType.LIST_RESOURCES_REQUEST:
-            return try self.decoder.decode(as: ListResourcesRequest.self)
-        default:
-            throw PklBugError.unknownMessage("Received unexpected message: \(messageType)")
-        }
+        try message.encode(to: self.encoder)
     }
 
     func close() throws {}
@@ -63,13 +45,7 @@ public class BaseMessageTransport: MessageTransport, @unchecked Sendable {
             queue.async {
                 while self.running {
                     do {
-                        let arrayLength = try self.decoder.decodeArrayLength()
-                        guard arrayLength == 2 else {
-                            throw PklBugError.invalidMessageCode(
-                                "Expected 2-element message array, got \(arrayLength)")
-                        }
-                        let code = try self.decoder.decode(as: MessageType.self)
-                        let message = try self.decodeMessage(code)
+                        let message = try decodeMessage(from: self.decoder)
                         debug("Received message: \(message)")
                         continuation.yield(message)
                     } catch {

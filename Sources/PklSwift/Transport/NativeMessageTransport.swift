@@ -34,19 +34,16 @@ public class NativeMessageTransport: MessageTransport, @unchecked Sendable {
         }
     }
 
-    override func send(_ message: any ClientMessage) throws {
+    func send(_ message: any ClientMessage) throws {
         let client = try getClient()
         let writer: BufferWriter = .init()
         let encoder: MessagePackEncoder = .init(writer: writer)
-        let messageType = MessageType.getMessageType(message)
-        try encoder.encodeArrayHeader(2)
-        try encoder.encode(messageType)
-        try encoder.encode(message)
+        try message.encode(to: encoder)
         let bytes = writer.bytes
         try client.sendMessage(bytes: bytes)
     }
 
-    override func getMessages() throws -> AsyncThrowingStream<any ServerMessage, any Error> {
+    func getMessages() throws -> AsyncThrowingStream<any ServerMessage, any Error> {
         let client = try getClient()
         let bytesStream = client.getMessages()
         return AsyncThrowingStream { continuation in
@@ -55,14 +52,7 @@ public class NativeMessageTransport: MessageTransport, @unchecked Sendable {
                     for try await bytes in bytesStream {
                         let reader: BufferReader = .init(bytes)
                         let decoder: MessagePackDecoder = .init(reader: reader)
-                        self.decoder = decoder
-                        let arrayLength = try decoder.decodeArrayLength()
-                        guard arrayLength == 2 else {
-                            throw PklBugError.invalidMessageCode(
-                                "Expected 2-element message array, got \(arrayLength)")
-                        }
-                        let code = try decoder.decode(as: MessageType.self)
-                        let message = try self.decodeMessage(code)
+                        let message = try decodeMessage(from: decoder)
                         debug("Received message: \(message)")
                         continuation.yield(message)
                     }
@@ -75,7 +65,7 @@ public class NativeMessageTransport: MessageTransport, @unchecked Sendable {
         }
     }
 
-    override func close() throws {
+    func close() throws {
         if let client = self.client {
             try client.close()
         }

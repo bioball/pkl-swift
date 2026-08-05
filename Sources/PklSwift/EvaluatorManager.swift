@@ -87,8 +87,10 @@ func getPklCommand() throws -> [String] {
     throw PklError("Unable to find `pkl` command on PATH.")
 }
 
-/// Provides handlers for managing the lifecycles of Pkl evaluators. If binding to Pkl as a child process, an evaluator
-/// manager represents a single child process.
+/// Provides handlers for managing the lifecycles of Pkl evaluators.
+///
+/// If binding to Pkl as a child process, an evaluator manager represents a single child process.
+/// If binding to Pkl as C library, an evaluator manager represents a thread.
 ///
 /// If spawning multiple evaluators, it is much better to spawn them through the evaluator manager, rather than through
 /// ``withEvaluator(_:)``.
@@ -100,7 +102,7 @@ public actor EvaluatorManager {
     /// The created evaluators, identified by their evaluator id.
     var evaluators: [Int64: Evaluator] = [:]
 
-    /// Requests sent to Pkl,
+    /// Requests sent to Pkl
     var inFlightRequests: [Int64: CheckedContinuation<ServerResponseMessage, Error>] = [:]
 
     /// Unstructured Tasks spawned for handler callbacks (module/resource reads, etc.).
@@ -141,6 +143,11 @@ public actor EvaluatorManager {
         }
     }
 
+    #if libpkl
+    func getVersion() throws -> String {
+        try LibPklClient.getVersion()
+    }
+    #else
     /// Get the semantic version as a String of the Pkl interpreter being used.
     func getVersion() throws -> String {
         #if os(macOS) || os(Linux) || os(Windows)
@@ -169,6 +176,7 @@ public actor EvaluatorManager {
         throw PklError("cannot spawn pkl cli on this platform")
         #endif
     }
+    #endif
 
     private func listenForIncomingMessages() async throws {
         for try await message in try self.transport.getMessages() {

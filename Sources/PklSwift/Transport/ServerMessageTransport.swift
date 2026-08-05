@@ -64,19 +64,6 @@ public class ServerMessageTransport: BaseMessageTransport, @unchecked Sendable {
         try super.send(message)
     }
 
-    override func decodeMessage(_ messageType: MessageType) throws -> ServerMessage {
-        switch messageType {
-        case MessageType.CREATE_EVALUATOR_RESPONSE:
-            return try self.decoder.decode(as: CreateEvaluatorResponse.self)
-        case MessageType.EVALUATE_RESPONSE:
-            return try self.decoder.decode(as: EvaluateResponse.self)
-        case MessageType.LOG_MESSAGE:
-            return try self.decoder.decode(as: LogMessage.self)
-        default:
-            return try super.decodeMessage(messageType)
-        }
-    }
-
     override func close() {
         if self.process == nil {
             return

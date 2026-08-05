@@ -28,12 +28,11 @@ private final class ResponseContext {
 
 func messageResponseHandler(length: UInt32, message: UnsafeMutablePointer<CChar>?, userData: UnsafeMutableRawPointer?) {
     // in practice, we can count on these never being nil.
+    // we have to declare them nullable because that's how Swift synthesizes bindings for the C code.
     guard let userData, let message else {
         return
     }
     let context = Unmanaged<ResponseContext>.fromOpaque(userData).takeUnretainedValue()
-    // Copies out of libpkl's buffer into Swift-owned, ARC-managed storage.
-    // libpkl is free to release `message` as soon as this callback returns.
     let bytes = [UInt8](UnsafeRawBufferPointer(start: message, count: Int(length)))
     context.continuation.yield(bytes)
 }
@@ -46,6 +45,13 @@ final class LibPklClient {
     private let contextPtr: UnsafeMutableRawPointer
     private let exec: UnsafeMutablePointer<OpaquePointer?>
     public var closed: Bool = false
+
+    static func getVersion() throws -> String {
+        if let version = pkl_version() {
+            return String(cString: version)
+        }
+        throw PklError("pkl_version returned a null pointer")
+    }
 
     init() throws {
         let (stream, continuation) = AsyncThrowingStream<[UInt8], Error>.makeStream()
@@ -66,7 +72,7 @@ final class LibPklClient {
             var error = pkl_error_t()
             let response = pkl_init(messageResponseHandler, contextPtr, exec, &error)
             if response != 0 {
-                initError = PklError(String(cString: error.message))
+                initError = PklError("Failed to call pkl_init: \(String(cString: error.message))")
             }
         }
         if let initError {
@@ -91,7 +97,7 @@ final class LibPklClient {
                 return pkl_send_message(pexec, UInt32(buffer.count), charPtr, &error)
             }
             if response != 0 {
-                sendError = PklError("Failed to call pkl_init: \(String(cString: error.message))")
+                sendError = PklError("Failed to call pkl_send_message: \(String(cString: error.message))")
             }
         }
         if let sendError {
