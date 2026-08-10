@@ -15,11 +15,9 @@
 //===----------------------------------------------------------------------===//
 
 #if libpkl
-
 #if libpkl_shared && libpkl_static
 #error("'libpkl_shared' and 'libpkl_static' are mutually exclusive traits")
 #endif
-
 #if libpkl_shared
 import CLibPklShared
 #else
@@ -66,6 +64,9 @@ final class LibPklClient {
         let (stream, continuation) = AsyncThrowingStream<[UInt8], Error>.makeStream()
         self.stream = stream
         self.continuation = continuation
+
+        // nonsense; `foobar` doesn't exist on `self`
+        self.foobar = "hi"
 
         let context = ResponseContext(continuation: continuation)
         self.context = context
